@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Expense Manager — Local Desktop App</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #f4f3ed; /* Cream/off-white */
+            --bg-card: #f4f3ed;
+            --text-main: #111111; /* Stark black */
+            --text-muted: #444444;
+            --primary: #111111; 
+            --primary-hover: #b91c1c; /* Crimson Red */
+            --border: #111111; /* Hard black */
+            --essential: transparent;
+            --essential-text: #111111;
+            --non-essential: transparent;
+            --non-essential-text: #b91c1c;
+            --uncategorized: transparent;
+            --uncategorized-text: #666666;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            padding: 2rem; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            font-family: 'Lora', Georgia, serif; 
+        }
+        
+        h1, h2, h3, .modal-emoji { 
+            font-family: 'Playfair Display', Georgia, serif; 
+            font-weight: 800; 
+            letter-spacing: -0.03em;
+        }
+
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 3rem; border-bottom: 3px solid var(--border); padding-bottom: 1.5rem; 
+        }
+        
+        /* Mimicking the tilted logo style */
+        h1 { 
+            font-size: 2.2rem; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            transform: rotate(-2deg);
+            transform-origin: left bottom;
+        }
+        
+        .config-box { display: flex; gap: 0.75rem; align-items: center; }
+        
+        input[type="password"], input[type="text"], input[type="number"], input[type="date"], select {
+            padding: 0.6rem 0.75rem; border: 2px solid var(--border); border-radius: 0; 
+            font-size: 0.95rem; background: transparent; font-family: 'Lora', serif;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--primary-hover); }
+        
+        button {
+            background-color: var(--primary); color: var(--bg-main); border: 2px solid var(--primary); 
+            padding: 0.6rem 1.25rem; border-radius: 0; font-family: 'Playfair Display', serif;
+            font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;
+            cursor: pointer; transition: all 0.2s;
+        }
+        button:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+        
+        button.secondary { background-color: transparent; color: var(--primary); }
+        button.secondary:hover { background-color: var(--primary); color: var(--bg-main); }
+        
+        button.danger { background-color: transparent; color: #b91c1c; border-color: #b91c1c; }
+        button.danger:hover { background-color: #b91c1c; color: #fff; }
+        
+        /* Modal Styles - Editorial Theme */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(244, 243, 237, 0.95); /* Opaque cream */
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: transparent; padding: 2.5rem; text-align: left; max-width: 700px; width: 90%;
+        }
+        .modal-content h2.hero-text { 
+            font-size: 5rem; line-height: 1.1; margin-bottom: 0; color: var(--text-main);
+        }
+        .modal-content h2.hero-sub {
+            font-size: 5rem; line-height: 1.1; margin-bottom: 3rem; margin-top: -10px;
+        }
+        .blood-accent { color: var(--primary-hover); font-style: italic; }
+        
+        .modal-buttons { display: flex; gap: 1.5rem; }
+        .modal-btn { 
+            flex: 1; padding: 2rem 1.5rem; font-size: 1.5rem; display: flex; flex-direction: column; 
+            align-items: flex-start; gap: 1rem; border: 3px solid var(--border); background: transparent;
+            color: var(--text-main); text-align: left;
+        }
+        .modal-btn:hover { background: var(--primary); color: var(--bg-main); transform: translateY(-4px); box-shadow: 8px 8px 0 rgba(185,28,28,0.2); }
+        .modal-btn small { font-family: 'Lora', serif; font-size: 0.9rem; font-weight: 400; text-transform: none; letter-spacing: 0;}
+
+        /* KPIs */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .kpi-card { background: transparent; padding: 1.5rem; border: 2px solid var(--border); border-radius: 0; }
+        .kpi-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: 0.05em; font-family: 'Playfair Display', serif;}
+        .kpi-value { font-size: 2.2rem; font-weight: 900; font-family: 'Playfair Display', serif; }
+
+        .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
+        @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+        
+        .card { background: transparent; padding: 2rem; border: 2px solid var(--border); border-radius: 0; transition: border-color 0.3s; }
+        .card.highlighted { border-color: var(--primary-hover); border-width: 3px; }
+        .card h2 { font-size: 1.8rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.75rem; }
+        
+        /* Drag and Drop Zone */
+        .dropzone {
+            border: 2px dashed var(--border); border-radius: 0; padding: 4rem 2rem; text-align: center;
+            background: transparent; cursor: pointer; transition: all 0.2s;
+        }
+        .dropzone.dragover { border-color: var(--primary-hover); border-style: solid; background: rgba(185, 28, 28, 0.05); }
+        .dropzone strong { font-family: 'Playfair Display', serif; font-size: 1.5rem; display: block; margin-bottom: 0.5rem;}
+        .dropzone p { color: var(--text-muted); font-size: 1rem; font-style: italic; }
+        .status-msg { margin-top: 1rem; font-size: 1rem; font-weight: 600; min-height: 1.5rem; font-style: italic; }
+
+        /* Manual Entry Form */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .form-full { grid-column: span 2; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); font-family: 'Playfair Display', serif; text-transform: uppercase; letter-spacing: 0.05em;}
+        .optional-label { font-weight: normal; color: var(--text-muted); font-size: 0.75rem; text-transform: none; font-family: 'Lora', serif; font-style: italic;}
+
+        /* Table */
+        .table-container { overflow-x: auto; background: transparent; border: 2px solid var(--border); border-radius: 0; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 1rem; }
+        th { background: transparent; padding: 1rem; font-weight: 800; color: var(--text-main); border-bottom: 2px solid var(--border); font-family: 'Playfair Display', serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;}
+        td { padding: 1rem; border-bottom: 1px solid #d1d0c9; }
+        tr:hover { background-color: rgba(17,17,17,0.03); }
+        
+        .badge { 
+            padding: 0.25rem 0.5rem; border-radius: 0; font-size: 0.75rem; font-weight: 700; 
+            display: inline-block; font-family: 'Playfair Display', serif; text-transform: uppercase;
+            border: 1px solid var(--border);
+        }
+        .badge-essential { color: var(--essential-text); border-color: var(--essential-text); }
+        .badge-non-essential { color: var(--non-essential-text); border-color: var(--non-essential-text); background: rgba(185,28,28,0.05); }
+        .badge-uncategorized { color: var(--uncategorized-text); border-color: #a3a3a3; border-style: dashed;}
+        
+        .action-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+
+        /* Tabs */
+        .hidden { display: none !important; }
+        .tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid #d1d0c9; padding-bottom: 0; }
+        .tab-btn { 
+            background: transparent; color: var(--text-muted); border: none; padding: 0.75rem 1.5rem; 
+            font-size: 1.1rem; cursor: pointer; border-radius: 0; font-family: 'Playfair Display', serif;
+            text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 4px solid transparent;
+            margin-bottom: -2px; transition: all 0.2s;
+        }
+        .tab-btn.active { color: var(--primary); font-weight: 900; border-bottom: 4px solid var(--primary); }
+        .tab-btn:hover:not(.active) { color: var(--primary); border-bottom-color: #d1d0c9; }
+        
+        .review-input { width: 100%; padding: 0.5rem; border: 1px solid var(--border); font-size: 0.95rem; border-radius: 0;}
+    </style>
+</head>
+<body>
+
+<!-- Startup Mode Selection Modal -->
+<div id="welcomeModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2 class="hero-text">Great Tracking.</h2>
+        <h2 class="hero-sub">No <span class="blood-accent">Nonsense.</span></h2>
+        
+        <div class="modal-buttons">
+            <button class="modal-btn" onclick="switchTab('scan'); document.getElementById('welcomeModal').style.display='none';">
+                SCAN RECEIPT
+                <small>AI extracts the data. You verify it.</small>
+            </button>
+            <button class="modal-btn" onclick="switchTab('manual'); document.getElementById('welcomeModal').style.display='none';">
+                MANUAL ENTRY
+                <small>Type it in yourself. No fuss.</small>
+            </button>
+        </div>
+    </div>
+</div>
+
+<header>
+    <h1>Anwar Family<br><span style="font-size: 0.9rem; font-family: 'Lora', serif; text-transform: none; font-weight: 400; letter-spacing: 0; transform: none; display: block; margin-top: 5px;">Expense Management</span></h1>
+    <div class="config-box">
+        <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key..." />
+        <button onclick="saveApiKey()">Save Key</button>
+        <button class="secondary" onclick="exportCSV()">Export CSV</button>
+        <button class="danger" onclick="clearData()">Wipe Data</button>
+    </div>
+</header>
+
+<section class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-title">Household Income</div>
+        <div class="kpi-value" id="kpiIncome">€4,400.00</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-title">Total Expenses</div>
+        <div class="kpi-value" id="kpiExpenses">€0.00</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-title">Net Savings</div>
+        <div class="kpi-value" id="kpiSavings">€0.00</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-title">Essential Ratio</div>
+        <div class="kpi-value" id="kpiRatio">0%</div>
+    </div>
+</section>
+
+<div class="tabs">
+    <button class="tab-btn active" id="tab-scan" onclick="switchTab('scan')">Scan Receipt</button>
+    <button class="tab-btn" id="tab-manual" onclick="switchTab('manual')">Manual Entry</button>
+</div>
+
+<section class="workspace" style="display: block;">
+    <!-- Drag & Drop AI OCR Workspace -->
+    <div class="card" id="scanCard">
+        <h2>AI Extraction</h2>
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+            <strong>Drop Receipt Image Here</strong>
+            <p>or click to browse from your PC (JPG, PNG)</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+        </div>
+        <div id="ocrStatus" class="status-msg"></div>
+
+        <!-- Review Zone for Scanned Items -->
+        <div id="reviewZone" class="hidden" style="margin-top: 2rem; border-top: 2px solid var(--border); padding-top: 2rem;">
+            <h3 style="margin-bottom: 1.5rem; font-family: 'Playfair Display', serif; font-size: 1.5rem;">Review & Edit</h3>
+            <div class="form-grid" style="margin-bottom: 1.5rem;">
+                <div class="form-group"><label>Date</label><input type="date" id="rDate"></div>
+                <div class="form-group"><label>Merchant</label><input type="text" id="rMerchant"></div>
+            </div>
+            <div style="overflow-x: auto; margin-bottom: 1.5rem;">
+                <table style="min-width: 800px; border: 2px solid var(--border);">
+                    <thead>
+                        <tr>
+                            <th>Expense Item</th>
+                            <th style="width: 120px;">Amount (€)</th>
+                            <th>Category 1</th>
+                            <th>Category 2</th>
+                            <th>Category 3</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewBody"></tbody>
+                </table>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="secondary" type="button" onclick="addReviewRow()">Add Row</button>
+                <button class="danger" type="button" onclick="cancelReview()">Discard</button>
+                <button type="button" style="flex: 1;" onclick="confirmReview()">Confirm & Save to Ledger</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Entry Form -->
+    <div class="card hidden" id="manualCard">
+        <h2>Manual Entry</h2>
+        <form id="manualForm" onsubmit="addManualExpense(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Date <span class="optional-label">(Defaults to today)</span></label>
+                    <input type="date" id="mDate" />
+                </div>
+                <div class="form-group">
+                    <label>Merchant</label>
+                    <input type="text" id="mMerchant" placeholder="e.g. Aldi" required />
+                </div>
+                <div class="form-group form-full">
+                    <label>Expense Name <span class="optional-label">(Optional)</span></label>
+                    <input type="text" id="mExpense" placeholder="e.g. Organic Milk or leave blank" />
+                </div>
+                <div class="form-group">
+                    <label>Amount (€)</label>
+                    <input type="number" step="0.01" id="mAmount" placeholder="0.00" required />
+                </div>
+                <div class="form-group">
+                    <label>Category 1 <span class="optional-label">(Optional)</span></label>
+                    <select id="mCat1">
+                        <option value="Uncategorized">Uncategorized</option>
+                        <option value="Essential">Essential</option>
+                        <option value="non-essential">Non-Essential</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category 2 <span class="optional-label">(Optional)</span></label>
+                    <select id="mCat2">
+                        <option value="Uncategorized">Uncategorized</option>
+                        <option value="recurrent">Recurrent</option>
+                        <option value="one time">One Time</option>
+                        <option value="Quarterly">Quarterly</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category 3 <span class="optional-label">(Optional)</span></label>
+                    <select id="mCat3">
+                        <option value="Uncategorized">Uncategorized</option>
+                        <option value="Grocery">Grocery</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Car">Car</option>
+                        <option value="luxury">Luxury</option>
+                        <option value="Gifts">Gifts</option>
+                        <option value="Living">Living</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Work">Work</option>
+                        <option value="Meds">Meds</option>
+                        <option value="Education">Education</option>
+                        <option value="Misc">Misc</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" style="margin-top: 2rem; width: 100%;">Add to Ledger</button>
+        </form>
+    </div>
+</section>
+
+<!-- Ledger Display & Toggle Area -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+    <h2 style="font-size: 2rem; border-bottom: none; margin: 0;">Ledger</h2>
+    <button id="toggleLedgerBtn" class="secondary" onclick="toggleLedger()">Show Ledger</button>
+</div>
+
+<section class="table-container hidden" id="ledgerSection">
+    <table id="ledgerTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Merchant</th>
+                <th>Expense Item</th>
+                <th>Amount</th>
+                <th>Category 1</th>
+                <th>Category 2</th>
+                <th>Category 3</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="ledgerBody"></tbody>
+    </table>
+</section>
+
+<script>
+    const TOTAL_INCOME = 4400.00;
+    
+    // Initial Baseline Data matching your spreadsheet scan
+    const defaultLedger = [
+        { id: 1, date: "2026-07-01", merchant: "Shell", expense: "Fuel", amount: 50, cat1: "Essential", cat2: "recurrent", cat3: "Travel" },
+        { id: 2, date: "2026-07-01", merchant: "Aktion", expense: "Gifts", amount: 70, cat1: "non-essential", cat2: "one time", cat3: "Gifts" },
+        { id: 3, date: "2026-07-02", merchant: "Aldi", expense: "Groceries", amount: 38, cat1: "Essential", cat2: "recurrent", cat3: "Grocery" },
+        { id: 4, date: "2026-07-02", merchant: "Baumarkt", expense: "Supplies", amount: 65, cat1: "non-essential", cat2: "one time", cat3: "Car" },
+        { id: 5, date: "2026-07-03", merchant: "Landlord", expense: "Rent", amount: 1160, cat1: "Essential", cat2: "recurrent", cat3: "Living" },
+        { id: 6, date: "2026-07-03", merchant: "Stadtwerke", expense: "Electricity", amount: 72, cat1: "Essential", cat2: "recurrent", cat3: "Living" }
+    ];
+
+    let ledger = [];
+    let stagedData = { date: '', merchant: '', items: [] };
+    let editingId = null;
+    let showLedger = false;
+
+    try {
+        const savedData = localStorage.getItem("expenseLedger");
+        if (savedData) {
+            ledger = JSON.parse(savedData);
+        } else {
+            ledger = [...defaultLedger]; // Copy default if nothing exists
+        }
+    } catch(e) {
+        ledger = [...defaultLedger];
+    }
+
+    // Load saved API key on startup
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedKey = localStorage.getItem("geminiApiKey");
+        if (savedKey) document.getElementById("apiKeyInput").value = savedKey;
+        document.getElementById("mDate").valueAsDate = new Date();
+        render();
+    });
+
+    // Tab Switching Logic
+    function switchTab(tab) {
+        document.getElementById('scanCard').classList.add('hidden');
+        document.getElementById('manualCard').classList.add('hidden');
+        document.getElementById('tab-scan').classList.remove('active');
+        document.getElementById('tab-manual').classList.remove('active');
+
+        if (tab === 'scan') {
+            document.getElementById('scanCard').classList.remove('hidden');
+            document.getElementById('tab-scan').classList.add('active');
+        } else {
+            document.getElementById('manualCard').classList.remove('hidden');
+            document.getElementById('tab-manual').classList.add('active');
+            document.getElementById('mMerchant').focus();
+        }
+    }
+
+    function toggleLedger() {
+        showLedger = !showLedger;
+        const section = document.getElementById("ledgerSection");
+        const btn = document.getElementById("toggleLedgerBtn");
+        
+        if(showLedger) {
+            section.classList.remove("hidden");
+            btn.textContent = "Hide Ledger";
+        } else {
+            section.classList.add("hidden");
+            btn.textContent = "Show Ledger";
+        }
+    }
+
+    function saveApiKey() {
+        const key = document.getElementById("apiKeyInput").value.trim();
+        localStorage.setItem("geminiApiKey", key);
+        alert("API Key saved securely.");
+    }
+
+    function clearData() {
+        if(confirm("Are you sure you want to delete all expenses? This cannot be undone.")) {
+            ledger = [];
+            saveAndRender();
+        }
+    }
+
+    // Drag and Drop Event Handlers
+    const dropzone = document.getElementById("dropzone");
+    dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
+    dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+    dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0) processReceiptImage(e.dataTransfer.files[0]);
+    });
+
+    function handleFileSelect(event) {
+        if (event.target.files.length > 0) processReceiptImage(event.target.files[0]);
+    }
+
+    // Convert image to Base64 and process via Gemini REST API
+    async function processReceiptImage(file) {
+        const apiKey = localStorage.getItem("geminiApiKey");
+        const statusEl = document.getElementById("ocrStatus");
+
+        if (!apiKey) {
+            statusEl.style.color = "var(--primary-hover)"; // red
+            statusEl.textContent = "Please enter and save your Gemini API Key first.";
+            return;
+        }
+
+        statusEl.style.color = "var(--text-main)"; // black
+        statusEl.textContent = `Analyzing ${file.name}... Please wait.`;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64Image = e.target.result.split(',')[1];
+            
+            const promptSchema = `Extract all line items from this receipt. Return ONLY valid JSON matching this structure exactly (no markdown formatting):
+            {
+              "merchant": "Store Name",
+              "date": "YYYY-MM-DD",
+              "items": [
+                {
+                  "expense": "item name",
+                  "amount": 12.50,
+                  "cat1": "Essential" or "non-essential" or "Other" or "Uncategorized",
+                  "cat2": "recurrent" or "one time" or "Quarterly" or "Other" or "Uncategorized",
+                  "cat3": "Grocery" or "Travel" or "Car" or "luxury" or "Gifts" or "Living" or "Clothing" or "Work" or "Meds" or "Education" or "Misc" or "Other" or "Uncategorized"
+                }
+              ]
+            }`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: promptSchema },
+                                { inline_data: { mime_type: file.type, data: base64Image } }
+                            ]
+                        }],
+                        generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const parsedText = JSON.parse(data.candidates[0].content.parts[0].text);
+
+                // Stage extracted items for Review instead of adding directly
+                if (parsedText.items && parsedText.items.length > 0) {
+                    stagedData.merchant = parsedText.merchant || "Scan";
+                    stagedData.date = parsedText.date || new Date().toISOString().split('T')[0];
+                    stagedData.items = parsedText.items.map(item => ({
+                        expense: item.expense || "Unknown Item",
+                        amount: parseFloat(item.amount) || 0,
+                        cat1: item.cat1 || "Uncategorized",
+                        cat2: item.cat2 || "Uncategorized",
+                        cat3: item.cat3 || "Uncategorized"
+                    }));
+                    
+                    document.getElementById('dropzone').style.display = 'none';
+                    document.getElementById('reviewZone').classList.remove('hidden');
+                    document.getElementById('rDate').value = stagedData.date;
+                    document.getElementById('rMerchant').value = stagedData.merchant;
+                    renderReviewTable();
+                    
+                    statusEl.style.color = "var(--text-main)";
+                    statusEl.textContent = `Extracted ${parsedText.items.length} items. Ready for review.`;
+                } else {
+                    throw new Error("No items found on receipt");
+                }
+            } catch (error) {
+                statusEl.style.color = "var(--primary-hover)"; // red
+                statusEl.textContent = "Extraction failed. Ensure image is clear and API key is valid.";
+                console.error(error);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- Category Option Generator Helper ---
+    function getCatOptions(catNum, selectedVal) {
+        const cats = {
+            1: ["Uncategorized", "Essential", "non-essential", "Other"],
+            2: ["Uncategorized", "recurrent", "one time", "Quarterly", "Other"],
+            3: ["Uncategorized", "Grocery", "Travel", "Car", "luxury", "Gifts", "Living", "Clothing", "Work", "Meds", "Education", "Misc", "Other"]
+        };
+        return cats[catNum].map(c => `<option value="${c}" ${c === selectedVal ? 'selected' : ''}>${c}</option>`).join('');
+    }
+
+    // --- Review Scanned Items Logic ---
+    function renderReviewTable() {
+        const tbody = document.getElementById('reviewBody');
+        tbody.innerHTML = '';
+        stagedData.items.forEach((item, idx) => {
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td><input type="text" class="review-input" value="${item.expense}" onchange="updateStaged(${idx}, 'expense', this.value)"></td>
+                    <td><input type="number" step="0.01" class="review-input" value="${item.amount}" onchange="updateStaged(${idx}, 'amount', this.value)"></td>
+                    <td><select class="review-input" onchange="updateStaged(${idx}, 'cat1', this.value)">${getCatOptions(1, item.cat1)}</select></td>
+                    <td><select class="review-input" onchange="updateStaged(${idx}, 'cat2', this.value)">${getCatOptions(2, item.cat2)}</select></td>
+                    <td><select class="review-input" onchange="updateStaged(${idx}, 'cat3', this.value)">${getCatOptions(3, item.cat3)}</select></td>
+                    <td><button class="action-btn danger" onclick="removeReviewRow(${idx})">X</button></td>
+                </tr>
+            `);
+        });
+    }
+
+    function updateStaged(idx, field, value) {
+        if (field === 'amount') stagedData.items[idx][field] = parseFloat(value) || 0;
+        else stagedData.items[idx][field] = value;
+    }
+
+    function addReviewRow() {
+        stagedData.items.push({ expense: 'New Item', amount: 0, cat1: 'Uncategorized', cat2: 'Uncategorized', cat3: 'Uncategorized' });
+        renderReviewTable();
+    }
+
+    function removeReviewRow(idx) {
+        stagedData.items.splice(idx, 1);
+        renderReviewTable();
+    }
+
+    function cancelReview() {
+        stagedData = { date: '', merchant: '', items: [] };
+        document.getElementById('reviewZone').classList.add('hidden');
+        document.getElementById('dropzone').style.display = 'block';
+        document.getElementById('ocrStatus').textContent = '';
+    }
+
+    function confirmReview() {
+        const rMerchant = document.getElementById('rMerchant').value.trim() || "Scan";
+        const rDate = document.getElementById('rDate').value || new Date().toISOString().split('T')[0];
+        
+        // Push backwards so they appear in correct chronological order at the top
+        for (let i = stagedData.items.length - 1; i >= 0; i--) {
+            let item = stagedData.items[i];
+            ledger.unshift({
+                id: Date.now() + Math.random(),
+                date: rDate,
+                merchant: rMerchant,
+                expense: item.expense,
+                amount: item.amount,
+                cat1: item.cat1,
+                cat2: item.cat2,
+                cat3: item.cat3
+            });
+        }
+        
+        saveAndRender();
+        cancelReview();
+        alert("Items saved to ledger.");
+    }
+
+    // --- Manual Form Submission ---
+    function addManualExpense(event) {
+        event.preventDefault();
+        
+        let mDate = document.getElementById("mDate").value;
+        if (!mDate) mDate = new Date().toISOString().split('T')[0]; // Default to today if blank
+        
+        // Handle optional expense name, falling back to a default if empty
+        let expenseName = document.getElementById("mExpense").value.trim();
+        if (expenseName === "") {
+            expenseName = "General Items"; 
+        }
+
+        ledger.unshift({
+            id: Date.now(),
+            date: mDate,
+            merchant: document.getElementById("mMerchant").value,
+            expense: expenseName,
+            amount: parseFloat(document.getElementById("mAmount").value),
+            cat1: document.getElementById("mCat1").value,
+            cat2: document.getElementById("mCat2").value,
+            cat3: document.getElementById("mCat3").value
+        });
+        
+        // Reset form but keep date as today
+        document.getElementById("manualForm").reset();
+        document.getElementById("mDate").valueAsDate = new Date();
+        saveAndRender();
+    }
+
+    // --- Ledger Action Functions ---
+    function deleteItem(id) {
+        ledger = ledger.filter(item => item.id !== id);
+        saveAndRender();
+    }
+
+    function startEdit(id) {
+        editingId = id;
+        render();
+    }
+
+    function cancelEdit() {
+        editingId = null;
+        render();
+    }
+
+    function saveEdit(id) {
+        const index = ledger.findIndex(item => item.id === id);
+        if (index !== -1) {
+            ledger[index].date = document.getElementById(`edit-date-${id}`).value;
+            ledger[index].merchant = document.getElementById(`edit-merchant-${id}`).value;
+            ledger[index].expense = document.getElementById(`edit-expense-${id}`).value;
+            ledger[index].amount = parseFloat(document.getElementById(`edit-amount-${id}`).value) || 0;
+            ledger[index].cat1 = document.getElementById(`edit-cat1-${id}`).value;
+            ledger[index].cat2 = document.getElementById(`edit-cat2-${id}`).value;
+            ledger[index].cat3 = document.getElementById(`edit-cat3-${id}`).value;
+        }
+        editingId = null;
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem("expenseLedger", JSON.stringify(ledger));
+        render();
+    }
+
+    // Dynamic UI Render
+    function render() {
+        const tbody = document.getElementById("ledgerBody");
+        tbody.innerHTML = "";
+
+        let totalExp = 0;
+        let essentialExp = 0;
+
+        ledger.forEach(item => {
+            totalExp += item.amount;
+            if (item.cat1 === "Essential") essentialExp += item.amount;
+
+            if (editingId === item.id) {
+                // Render Editable Row
+                const row = `
+                    <tr>
+                        <td><input type="date" id="edit-date-${item.id}" class="review-input" value="${item.date}"></td>
+                        <td><input type="text" id="edit-merchant-${item.id}" class="review-input" value="${item.merchant}"></td>
+                        <td><input type="text" id="edit-expense-${item.id}" class="review-input" value="${item.expense}"></td>
+                        <td><input type="number" step="0.01" id="edit-amount-${item.id}" class="review-input" value="${item.amount}"></td>
+                        <td><select id="edit-cat1-${item.id}" class="review-input">${getCatOptions(1, item.cat1)}</select></td>
+                        <td><select id="edit-cat2-${item.id}" class="review-input">${getCatOptions(2, item.cat2)}</select></td>
+                        <td><select id="edit-cat3-${item.id}" class="review-input">${getCatOptions(3, item.cat3)}</select></td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="action-btn" onclick="saveEdit(${item.id})">Save</button>
+                                <button class="action-btn secondary" onclick="cancelEdit()">Cancel</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            } else {
+                // Render Normal Row
+                // Determine badge color based on category status
+                let badgeClass = "badge-uncategorized";
+                if (item.cat1 === "Essential") badgeClass = "badge-essential";
+                else if (item.cat1 === "non-essential") badgeClass = "badge-non-essential";
+
+                const row = `
+                    <tr>
+                        <td>${item.date}</td>
+                        <td><strong>${item.merchant}</strong></td>
+                        <td>${item.expense}</td>
+                        <td>€${item.amount.toFixed(2)}</td>
+                        <td><span class="badge ${badgeClass}">${item.cat1}</span></td>
+                        <td>${item.cat2}</td>
+                        <td>${item.cat3}</td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="action-btn secondary" onclick="startEdit(${item.id})">Edit</button>
+                                <button class="action-btn danger" onclick="deleteItem(${item.id})">Del</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            }
+        });
+
+        // Update KPIs (These update dynamically behind the scenes even if the ledger is hidden)
+        const savings = TOTAL_INCOME - totalExp;
+        const ratio = totalExp > 0 ? ((essentialExp / totalExp) * 100).toFixed(0) : 0;
+
+        document.getElementById("kpiExpenses").textContent = `€${totalExp.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        document.getElementById("kpiSavings").textContent = `€${savings.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+        document.getElementById("kpiSavings").style.color = savings >= 0 ? "var(--text-main)" : "var(--primary-hover)";
+        document.getElementById("kpiRatio").textContent = `${ratio}% Essential`;
+    }
+
+    // CSV Export Engine
+    function exportCSV() {
+        if(ledger.length === 0) {
+            alert("No data to export!");
+            return;
+        }
+        let headers = ["Date,Merchant,Expense,Amount,Category 1,Category 2,Category 3\n"];
+        let rows = ledger.map(item => 
+            `"${item.date}","${item.merchant}","${item.expense}",${item.amount},"${item.cat1}","${item.cat2}","${item.cat3}"`
+        );
+        let csvContent = "data:text/csv;charset=utf-8," + headers.concat(rows).join("\n");
+        let encodedUri = encodeURI(csvContent);
+        let link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Anwar Family_Ledger_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+</body>
+</html>

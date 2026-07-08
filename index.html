@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Expense Manager — Local Desktop App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anwar Family Expense Manager</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
@@ -15,7 +13,7 @@
             --bg-main: #f4f3ed; /* Cream/off-white */
             --bg-card: #f4f3ed;
             --text-main: #111111; /* Stark black */
-            --text-muted: #444444;
+            --text-muted: #555555;
             --primary: #111111; 
             --primary-hover: #b91c1c; /* Crimson Red */
             --border: #111111; /* Hard black */
@@ -32,47 +30,122 @@
         body { 
             background-color: var(--bg-main); 
             color: var(--text-main); 
-            padding: 2rem; 
+            padding: 1rem; 
             max-width: 1400px; 
             margin: 0 auto; 
             font-family: 'Lora', Georgia, serif; 
+            -webkit-text-size-adjust: 100%;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 2rem;
+            }
         }
         
-        h1, h2, h3, .modal-emoji { 
+        h1, h2, h3 { 
             font-family: 'Playfair Display', Georgia, serif; 
             font-weight: 800; 
             letter-spacing: -0.03em;
         }
 
         header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 3rem; border-bottom: 3px solid var(--border); padding-bottom: 1.5rem; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1.5rem;
+            margin-bottom: 2rem; 
+            border-bottom: 3px solid var(--border); 
+            padding-bottom: 1.5rem; 
+        }
+
+        @media (min-width: 768px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 3rem;
+            }
         }
         
         /* Mimicking the tilted logo style */
         h1 { 
-            font-size: 2.2rem; 
+            font-size: 2rem; 
             font-weight: 900; 
             text-transform: uppercase; 
             letter-spacing: 0.05em;
-            transform: rotate(-2deg);
+            transform: rotate(-1.5deg);
             transform-origin: left bottom;
+            line-height: 1.1;
+        }
+
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+                transform: rotate(-2deg);
+            }
         }
         
-        .config-box { display: flex; gap: 0.75rem; align-items: center; }
+        .config-box { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 0.5rem; 
+            width: 100%;
+        }
+
+        @media (min-width: 600px) {
+            .config-box {
+                flex-direction: row;
+                flex-wrap: wrap;
+                width: auto;
+                gap: 0.75rem;
+            }
+        }
         
         input[type="password"], input[type="text"], input[type="number"], input[type="date"], select {
-            padding: 0.6rem 0.75rem; border: 2px solid var(--border); border-radius: 0; 
-            font-size: 0.95rem; background: transparent; font-family: 'Lora', serif;
+            padding: 0.75rem 0.85rem; 
+            border: 2px solid var(--border); 
+            border-radius: 0; 
+            font-size: 1rem; 
+            background: transparent; 
+            font-family: 'Lora', serif;
             transition: all 0.2s;
+            width: 100%;
+            height: 48px; /* Safe touch target height */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23111111'><path d='M0 3l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 10px;
+            padding-right: 32px;
         }
+
+        /* Override standard style for direct non-select inputs */
+        input[type="password"], input[type="text"], input[type="number"], input[type="date"] {
+            background-image: none;
+            padding-right: 0.85rem;
+        }
+
         input:focus, select:focus { outline: none; border-color: var(--primary-hover); }
         
         button {
-            background-color: var(--primary); color: var(--bg-main); border: 2px solid var(--primary); 
-            padding: 0.6rem 1.25rem; border-radius: 0; font-family: 'Playfair Display', serif;
-            font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;
-            cursor: pointer; transition: all 0.2s;
+            background-color: var(--primary); 
+            color: var(--bg-main); 
+            border: 2px solid var(--primary); 
+            padding: 0.75rem 1.25rem; 
+            border-radius: 0; 
+            font-family: 'Playfair Display', serif;
+            font-weight: 700; 
+            font-size: 0.95rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            cursor: pointer; 
+            transition: all 0.2s;
+            height: 48px; /* Safe touch targets */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         button:hover { background-color: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
         
@@ -82,67 +155,85 @@
         button.danger { background-color: transparent; color: #b91c1c; border-color: #b91c1c; }
         button.danger:hover { background-color: #b91c1c; color: #fff; }
         
-        /* Modal Styles - Editorial Theme */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(244, 243, 237, 0.95); /* Opaque cream */
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: transparent; padding: 2.5rem; text-align: left; max-width: 700px; width: 90%;
-        }
-        .modal-content h2.hero-text { 
-            font-size: 5rem; line-height: 1.1; margin-bottom: 0; color: var(--text-main);
-        }
-        .modal-content h2.hero-sub {
-            font-size: 5rem; line-height: 1.1; margin-bottom: 3rem; margin-top: -10px;
-        }
-        .blood-accent { color: var(--primary-hover); font-style: italic; }
-        
-        .modal-buttons { display: flex; gap: 1.5rem; }
-        .modal-btn { 
-            flex: 1; padding: 2rem 1.5rem; font-size: 1.5rem; display: flex; flex-direction: column; 
-            align-items: flex-start; gap: 1rem; border: 3px solid var(--border); background: transparent;
-            color: var(--text-main); text-align: left;
-        }
-        .modal-btn:hover { background: var(--primary); color: var(--bg-main); transform: translateY(-4px); box-shadow: 8px 8px 0 rgba(185,28,28,0.2); }
-        .modal-btn small { font-family: 'Lora', serif; font-size: 0.9rem; font-weight: 400; text-transform: none; letter-spacing: 0;}
-
         /* KPIs */
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
-        .kpi-card { background: transparent; padding: 1.5rem; border: 2px solid var(--border); border-radius: 0; }
-        .kpi-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: 0.05em; font-family: 'Playfair Display', serif;}
-        .kpi-value { font-size: 2.2rem; font-weight: 900; font-family: 'Playfair Display', serif; }
+        .kpi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 1rem; 
+            margin-bottom: 2rem; 
+        }
 
-        .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
-        @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+        @media (min-width: 900px) {
+            .kpi-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1.5rem;
+                margin-bottom: 3rem;
+            }
+        }
+
+        .kpi-card { background: transparent; padding: 1.25rem; border: 2px solid var(--border); border-radius: 0; }
+        .kpi-title { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: 0.05em; font-family: 'Playfair Display', serif;}
+        .kpi-value { font-size: 1.6rem; font-weight: 900; font-family: 'Playfair Display', serif; }
+
+        @media (min-width: 768px) {
+            .kpi-card { padding: 1.5rem; }
+            .kpi-value { font-size: 2.2rem; }
+        }
+
+        .workspace { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+
+        @media (min-width: 900px) {
+            .workspace {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+                margin-bottom: 3rem;
+            }
+        }
         
-        .card { background: transparent; padding: 2rem; border: 2px solid var(--border); border-radius: 0; transition: border-color 0.3s; }
+        .card { background: transparent; padding: 1.5rem; border: 2px solid var(--border); border-radius: 0; transition: border-color 0.3s; }
         .card.highlighted { border-color: var(--primary-hover); border-width: 3px; }
-        .card h2 { font-size: 1.8rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.75rem; }
+        .card h2 { font-size: 1.6rem; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border); padding-bottom: 0.75rem; }
+
+        @media (min-width: 768px) {
+            .card { padding: 2rem; }
+            .card h2 { font-size: 1.8rem; }
+        }
         
         /* Drag and Drop Zone */
         .dropzone {
-            border: 2px dashed var(--border); border-radius: 0; padding: 4rem 2rem; text-align: center;
+            border: 2px dashed var(--border); border-radius: 0; padding: 3rem 1rem; text-align: center;
             background: transparent; cursor: pointer; transition: all 0.2s;
         }
         .dropzone.dragover { border-color: var(--primary-hover); border-style: solid; background: rgba(185, 28, 28, 0.05); }
-        .dropzone strong { font-family: 'Playfair Display', serif; font-size: 1.5rem; display: block; margin-bottom: 0.5rem;}
-        .dropzone p { color: var(--text-muted); font-size: 1rem; font-style: italic; }
-        .status-msg { margin-top: 1rem; font-size: 1rem; font-weight: 600; min-height: 1.5rem; font-style: italic; }
+        .dropzone strong { font-family: 'Playfair Display', serif; font-size: 1.3rem; display: block; margin-bottom: 0.5rem;}
+        .dropzone p { color: var(--text-muted); font-size: 0.95rem; font-style: italic; }
+        .status-msg { margin-top: 1rem; font-size: 0.95rem; font-weight: 600; min-height: 1.5rem; font-style: italic; }
 
         /* Manual Entry Form */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-        .form-full { grid-column: span 2; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .form-full { grid-column: span 1; }
+        
+        @media (min-width: 600px) {
+            .form-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+            .form-full { grid-column: span 2; }
+        }
+
         .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
         .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-main); font-family: 'Playfair Display', serif; text-transform: uppercase; letter-spacing: 0.05em;}
         .optional-label { font-weight: normal; color: var(--text-muted); font-size: 0.75rem; text-transform: none; font-family: 'Lora', serif; font-style: italic;}
 
-        /* Table */
-        .table-container { overflow-x: auto; background: transparent; border: 2px solid var(--border); border-radius: 0; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 1rem; }
-        th { background: transparent; padding: 1rem; font-weight: 800; color: var(--text-main); border-bottom: 2px solid var(--border); font-family: 'Playfair Display', serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;}
-        td { padding: 1rem; border-bottom: 1px solid #d1d0c9; }
+        /* Table containers */
+        .table-container { 
+            overflow-x: auto; 
+            background: transparent; 
+            border: 2px solid var(--border); 
+            border-radius: 0; 
+            width: 100%;
+            -webkit-overflow-scrolling: touch; /* Kinetic scrolling for iOS */
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; min-width: 850px; }
+        th { background: transparent; padding: 0.85rem; font-weight: 800; color: var(--text-main); border-bottom: 2px solid var(--border); font-family: 'Playfair Display', serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.8rem;}
+        td { padding: 0.85rem; border-bottom: 1px solid #d1d0c9; }
         tr:hover { background-color: rgba(17,17,17,0.03); }
         
         .badge { 
@@ -154,65 +245,55 @@
         .badge-non-essential { color: var(--non-essential-text); border-color: var(--non-essential-text); background: rgba(185,28,28,0.05); }
         .badge-uncategorized { color: var(--uncategorized-text); border-color: #a3a3a3; border-style: dashed;}
         
-        .action-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+        .action-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; height: 36px; }
 
         /* Tabs */
         .hidden { display: none !important; }
-        .tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid #d1d0c9; padding-bottom: 0; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #d1d0c9; padding-bottom: 0; }
         .tab-btn { 
-            background: transparent; color: var(--text-muted); border: none; padding: 0.75rem 1.5rem; 
-            font-size: 1.1rem; cursor: pointer; border-radius: 0; font-family: 'Playfair Display', serif;
+            background: transparent; color: var(--text-muted); border: none; padding: 0.6rem 1rem; 
+            font-size: 1rem; cursor: pointer; border-radius: 0; font-family: 'Playfair Display', serif;
             text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 4px solid transparent;
             margin-bottom: -2px; transition: all 0.2s;
+            height: auto;
         }
         .tab-btn.active { color: var(--primary); font-weight: 900; border-bottom: 4px solid var(--primary); }
         .tab-btn:hover:not(.active) { color: var(--primary); border-bottom-color: #d1d0c9; }
         
-        .review-input { width: 100%; padding: 0.5rem; border: 1px solid var(--border); font-size: 0.95rem; border-radius: 0;}
+        .review-input { width: 100%; padding: 0.5rem; border: 1px solid var(--border); font-size: 0.95rem; border-radius: 0; height: 38px;}
+
+        /* UI Indicator highlighting paidBy needs selection */
+        .required-highlight {
+            border: 2px solid var(--primary-hover) !important;
+            background-color: rgba(185, 28, 28, 0.03);
+        }
     </style>
 </head>
 <body>
 
-<!-- Startup Mode Selection Modal -->
-<div id="welcomeModal" class="modal-overlay">
-    <div class="modal-content">
-        <h2 class="hero-text">Great Tracking.</h2>
-        <h2 class="hero-sub">No <span class="blood-accent">Nonsense.</span></h2>
-        
-        <div class="modal-buttons">
-            <button class="modal-btn" onclick="switchTab('scan'); document.getElementById('welcomeModal').style.display='none';">
-                SCAN RECEIPT
-                <small>AI extracts the data. You verify it.</small>
-            </button>
-            <button class="modal-btn" onclick="switchTab('manual'); document.getElementById('welcomeModal').style.display='none';">
-                MANUAL ENTRY
-                <small>Type it in yourself. No fuss.</small>
-            </button>
-        </div>
-    </div>
-</div>
-
 <header>
     <h1>Anwar Family<br><span style="font-size: 0.9rem; font-family: 'Lora', serif; text-transform: none; font-weight: 400; letter-spacing: 0; transform: none; display: block; margin-top: 5px;">Expense Management</span></h1>
-    <div class="config-box">
-        <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key..." />
-        <button onclick="saveApiKey()">Save Key</button>
-        <button class="secondary" onclick="exportCSV()">Export CSV</button>
-        <button class="danger" onclick="clearData()">Wipe Data</button>
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%; max-width: 550px;">
+        <div class="config-box">
+            <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key..." style="flex: 1; min-width: 140px;" />
+            <button onclick="saveApiKey()">Save Key</button>
+            <button class="secondary" onclick="exportCSV()">Export CSV</button>
+            <button class="danger" onclick="clearData()">Wipe</button>
+        </div>
     </div>
 </header>
 
 <section class="kpi-grid">
     <div class="kpi-card">
-        <div class="kpi-title">Household Income</div>
+        <div class="kpi-title">Income</div>
         <div class="kpi-value" id="kpiIncome">€4,400.00</div>
     </div>
     <div class="kpi-card">
-        <div class="kpi-title">Total Expenses</div>
+        <div class="kpi-title">Expenses</div>
         <div class="kpi-value" id="kpiExpenses">€0.00</div>
     </div>
     <div class="kpi-card">
-        <div class="kpi-title">Net Savings</div>
+        <div class="kpi-title">Savings</div>
         <div class="kpi-value" id="kpiSavings">€0.00</div>
     </div>
     <div class="kpi-card">
@@ -231,8 +312,8 @@
     <div class="card" id="scanCard">
         <h2>AI Extraction</h2>
         <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
-            <strong>Drop Receipt Image Here</strong>
-            <p>or click to browse from your PC (JPG, PNG)</p>
+            <strong>Take Picture or Upload</strong>
+            <p>Tap to open smartphone camera or upload receipt file</p>
             <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
         </div>
         <div id="ocrStatus" class="status-msg"></div>
@@ -244,25 +325,26 @@
                 <div class="form-group"><label>Date</label><input type="date" id="rDate"></div>
                 <div class="form-group"><label>Merchant</label><input type="text" id="rMerchant"></div>
             </div>
-            <div style="overflow-x: auto; margin-bottom: 1.5rem;">
-                <table style="min-width: 800px; border: 2px solid var(--border);">
+            <div style="overflow-x: auto; margin-bottom: 1.5rem; -webkit-overflow-scrolling: touch;">
+                <table style="min-width: 900px; border: 2px solid var(--border);">
                     <thead>
                         <tr>
                             <th>Expense Item</th>
-                            <th style="width: 120px;">Amount (€)</th>
+                            <th style="width: 100px;">Amount (€)</th>
                             <th>Category 1</th>
                             <th>Category 2</th>
                             <th>Category 3</th>
+                            <th style="width: 130px;">Paid By *</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="reviewBody"></tbody>
                 </table>
             </div>
-            <div style="display: flex; gap: 1rem;">
-                <button class="secondary" type="button" onclick="addReviewRow()">Add Row</button>
-                <button class="danger" type="button" onclick="cancelReview()">Discard</button>
-                <button type="button" style="flex: 1;" onclick="confirmReview()">Confirm & Save to Ledger</button>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="secondary" type="button" style="flex: 1; min-width: 120px;" onclick="addReviewRow()">Add Row</button>
+                <button class="danger" type="button" style="flex: 1; min-width: 120px;" onclick="cancelReview()">Discard</button>
+                <button type="button" style="flex: 2; min-width: 200px;" onclick="confirmReview()">Confirm & Save to Ledger</button>
             </div>
         </div>
     </div>
@@ -277,7 +359,7 @@
                     <input type="date" id="mDate" />
                 </div>
                 <div class="form-group">
-                    <label>Merchant</label>
+                    <label>Merchant (Store) *</label>
                     <input type="text" id="mMerchant" placeholder="e.g. Aldi" required />
                 </div>
                 <div class="form-group form-full">
@@ -285,8 +367,18 @@
                     <input type="text" id="mExpense" placeholder="e.g. Organic Milk or leave blank" />
                 </div>
                 <div class="form-group">
-                    <label>Amount (€)</label>
+                    <label>Amount (€) *</label>
                     <input type="number" step="0.01" id="mAmount" placeholder="0.00" required />
+                </div>
+                <div class="form-group">
+                    <label>Paid By *</label>
+                    <select id="mPaidBy" required>
+                        <option value="" disabled selected>Who paid? *</option>
+                        <option value="Umair">Umair</option>
+                        <option value="Sabeeha">Sabeeha</option>
+                        <option value="Joint">Joint</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Category 1 <span class="optional-label">(Optional)</span></label>
@@ -307,7 +399,7 @@
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group form-full">
                     <label>Category 3 <span class="optional-label">(Optional)</span></label>
                     <select id="mCat3">
                         <option value="Uncategorized">Uncategorized</option>
@@ -345,6 +437,7 @@
                 <th>Merchant</th>
                 <th>Expense Item</th>
                 <th>Amount</th>
+                <th>Paid By</th>
                 <th>Category 1</th>
                 <th>Category 2</th>
                 <th>Category 3</th>
@@ -358,14 +451,14 @@
 <script>
     const TOTAL_INCOME = 4400.00;
     
-    // Initial Baseline Data matching your spreadsheet scan
+    // Initial Baseline Data matching your spreadsheet scan with Paid By assigned
     const defaultLedger = [
-        { id: 1, date: "2026-07-01", merchant: "Shell", expense: "Fuel", amount: 50, cat1: "Essential", cat2: "recurrent", cat3: "Travel" },
-        { id: 2, date: "2026-07-01", merchant: "Aktion", expense: "Gifts", amount: 70, cat1: "non-essential", cat2: "one time", cat3: "Gifts" },
-        { id: 3, date: "2026-07-02", merchant: "Aldi", expense: "Groceries", amount: 38, cat1: "Essential", cat2: "recurrent", cat3: "Grocery" },
-        { id: 4, date: "2026-07-02", merchant: "Baumarkt", expense: "Supplies", amount: 65, cat1: "non-essential", cat2: "one time", cat3: "Car" },
-        { id: 5, date: "2026-07-03", merchant: "Landlord", expense: "Rent", amount: 1160, cat1: "Essential", cat2: "recurrent", cat3: "Living" },
-        { id: 6, date: "2026-07-03", merchant: "Stadtwerke", expense: "Electricity", amount: 72, cat1: "Essential", cat2: "recurrent", cat3: "Living" }
+        { id: 1, date: "2026-07-01", merchant: "Shell", expense: "Fuel", amount: 50, cat1: "Essential", cat2: "recurrent", cat3: "Travel", paidBy: "Umair" },
+        { id: 2, date: "2026-07-01", merchant: "Aktion", expense: "Gifts", amount: 70, cat1: "non-essential", cat2: "one time", cat3: "Gifts", paidBy: "Sabeeha" },
+        { id: 3, date: "2026-07-02", merchant: "Aldi", expense: "Groceries", amount: 38, cat1: "Essential", cat2: "recurrent", cat3: "Grocery", paidBy: "Umair" },
+        { id: 4, date: "2026-07-02", merchant: "Baumarkt", expense: "Supplies", amount: 65, cat1: "non-essential", cat2: "one time", cat3: "Car", paidBy: "Umair" },
+        { id: 5, date: "2026-07-03", merchant: "Landlord", expense: "Rent", amount: 1160, cat1: "Essential", cat2: "recurrent", cat3: "Living", paidBy: "Joint" },
+        { id: 6, date: "2026-07-03", merchant: "Stadtwerke", expense: "Electricity", amount: 72, cat1: "Essential", cat2: "recurrent", cat3: "Living", paidBy: "Joint" }
     ];
 
     let ledger = [];
@@ -384,13 +477,20 @@
         ledger = [...defaultLedger];
     }
 
-    // Load saved API key on startup
+    // Load saved settings on startup
     document.addEventListener("DOMContentLoaded", () => {
         const savedKey = localStorage.getItem("geminiApiKey");
         if (savedKey) document.getElementById("apiKeyInput").value = savedKey;
-        document.getElementById("mDate").valueAsDate = new Date();
+        
         render();
+        document.getElementById("mDate").valueAsDate = new Date();
     });
+
+    function saveApiKey() {
+        const key = document.getElementById("apiKeyInput").value.trim();
+        localStorage.setItem("geminiApiKey", key);
+        alert("Gemini API Key saved securely.");
+    }
 
     // Tab Switching Logic
     function switchTab(tab) {
@@ -421,12 +521,6 @@
             section.classList.add("hidden");
             btn.textContent = "Show Ledger";
         }
-    }
-
-    function saveApiKey() {
-        const key = document.getElementById("apiKeyInput").value.trim();
-        localStorage.setItem("geminiApiKey", key);
-        alert("API Key saved securely.");
     }
 
     function clearData() {
@@ -514,7 +608,8 @@
                         amount: parseFloat(item.amount) || 0,
                         cat1: item.cat1 || "Uncategorized",
                         cat2: item.cat2 || "Uncategorized",
-                        cat3: item.cat3 || "Uncategorized"
+                        cat3: item.cat3 || "Uncategorized",
+                        paidBy: "" // Forced validation empty state
                     }));
                     
                     document.getElementById('dropzone').style.display = 'none';
@@ -524,7 +619,7 @@
                     renderReviewTable();
                     
                     statusEl.style.color = "var(--text-main)";
-                    statusEl.textContent = `Extracted ${parsedText.items.length} items. Ready for review.`;
+                    statusEl.textContent = `Extracted ${parsedText.items.length} items. Select 'Paid By' for each item to continue.`;
                 } else {
                     throw new Error("No items found on receipt");
                 }
@@ -537,7 +632,7 @@
         reader.readAsDataURL(file);
     }
 
-    // --- Category Option Generator Helper ---
+    // --- Category and Paid-By Option Generator Helper ---
     function getCatOptions(catNum, selectedVal) {
         const cats = {
             1: ["Uncategorized", "Essential", "non-essential", "Other"],
@@ -547,11 +642,21 @@
         return cats[catNum].map(c => `<option value="${c}" ${c === selectedVal ? 'selected' : ''}>${c}</option>`).join('');
     }
 
+    function getPaidByOptions(selectedVal) {
+        const options = ["", "Umair", "Sabeeha", "Joint", "Other"];
+        return options.map(opt => {
+            const label = opt === "" ? "Who paid? *" : opt;
+            const disabled = opt === "" ? "disabled" : "";
+            return `<option value="${opt}" ${opt === selectedVal ? 'selected' : ''} ${disabled}>${label}</option>`;
+        }).join('');
+    }
+
     // --- Review Scanned Items Logic ---
     function renderReviewTable() {
         const tbody = document.getElementById('reviewBody');
         tbody.innerHTML = '';
         stagedData.items.forEach((item, idx) => {
+            const highlightClass = item.paidBy === "" ? "required-highlight" : "";
             tbody.insertAdjacentHTML('beforeend', `
                 <tr>
                     <td><input type="text" class="review-input" value="${item.expense}" onchange="updateStaged(${idx}, 'expense', this.value)"></td>
@@ -559,7 +664,8 @@
                     <td><select class="review-input" onchange="updateStaged(${idx}, 'cat1', this.value)">${getCatOptions(1, item.cat1)}</select></td>
                     <td><select class="review-input" onchange="updateStaged(${idx}, 'cat2', this.value)">${getCatOptions(2, item.cat2)}</select></td>
                     <td><select class="review-input" onchange="updateStaged(${idx}, 'cat3', this.value)">${getCatOptions(3, item.cat3)}</select></td>
-                    <td><button class="action-btn danger" onclick="removeReviewRow(${idx})">X</button></td>
+                    <td><select id="rPaidBy-${idx}" class="review-input ${highlightClass}" onchange="updateStaged(${idx}, 'paidBy', this.value)">${getPaidByOptions(item.paidBy)}</select></td>
+                    <td><button class="action-btn danger" style="padding: 0 0.5rem;" onclick="removeReviewRow(${idx})">X</button></td>
                 </tr>
             `);
         });
@@ -568,10 +674,15 @@
     function updateStaged(idx, field, value) {
         if (field === 'amount') stagedData.items[idx][field] = parseFloat(value) || 0;
         else stagedData.items[idx][field] = value;
+        
+        if (field === 'paidBy') {
+            const selectEl = document.getElementById(`rPaidBy-${idx}`);
+            if (value !== "") selectEl.classList.remove("required-highlight");
+        }
     }
 
     function addReviewRow() {
-        stagedData.items.push({ expense: 'New Item', amount: 0, cat1: 'Uncategorized', cat2: 'Uncategorized', cat3: 'Uncategorized' });
+        stagedData.items.push({ expense: 'New Item', amount: 0, cat1: 'Uncategorized', cat2: 'Uncategorized', cat3: 'Uncategorized', paidBy: "" });
         renderReviewTable();
     }
 
@@ -591,10 +702,21 @@
         const rMerchant = document.getElementById('rMerchant').value.trim() || "Scan";
         const rDate = document.getElementById('rDate').value || new Date().toISOString().split('T')[0];
         
-        // Push backwards so they appear in correct chronological order at the top
+        // Ensure "Paid By" is selected for every review item
+        let incompleteIdx = stagedData.items.findIndex(item => !item.paidBy || item.paidBy === "");
+        if (incompleteIdx !== -1) {
+            alert(`Please select who paid for "${stagedData.items[incompleteIdx].expense}" before saving.`);
+            const highlightElement = document.getElementById(`rPaidBy-${incompleteIdx}`);
+            if (highlightElement) {
+                highlightElement.classList.add("required-highlight");
+                highlightElement.focus();
+            }
+            return;
+        }
+
         for (let i = stagedData.items.length - 1; i >= 0; i--) {
             let item = stagedData.items[i];
-            ledger.unshift({
+            const newItem = {
                 id: Date.now() + Math.random(),
                 date: rDate,
                 merchant: rMerchant,
@@ -602,13 +724,15 @@
                 amount: item.amount,
                 cat1: item.cat1,
                 cat2: item.cat2,
-                cat3: item.cat3
-            });
+                cat3: item.cat3,
+                paidBy: item.paidBy
+            };
+            ledger.unshift(newItem);
         }
         
         saveAndRender();
         cancelReview();
-        alert("Items saved to ledger.");
+        alert("Receipt items successfully validated and saved.");
     }
 
     // --- Manual Form Submission ---
@@ -616,15 +740,20 @@
         event.preventDefault();
         
         let mDate = document.getElementById("mDate").value;
-        if (!mDate) mDate = new Date().toISOString().split('T')[0]; // Default to today if blank
+        if (!mDate) mDate = new Date().toISOString().split('T')[0];
         
-        // Handle optional expense name, falling back to a default if empty
         let expenseName = document.getElementById("mExpense").value.trim();
         if (expenseName === "") {
             expenseName = "General Items"; 
         }
 
-        ledger.unshift({
+        const paidBy = document.getElementById("mPaidBy").value;
+        if (!paidBy) {
+            alert("Paid By is mandatory.");
+            return;
+        }
+
+        const newItem = {
             id: Date.now(),
             date: mDate,
             merchant: document.getElementById("mMerchant").value,
@@ -632,21 +761,26 @@
             amount: parseFloat(document.getElementById("mAmount").value),
             cat1: document.getElementById("mCat1").value,
             cat2: document.getElementById("mCat2").value,
-            cat3: document.getElementById("mCat3").value
-        });
+            cat3: document.getElementById("mCat3").value,
+            paidBy: paidBy
+        };
+
+        ledger.unshift(newItem);
+        saveAndRender();
         
-        // Reset form but keep date as today
+        // Reset manual form inputs cleanly
         document.getElementById("manualForm").reset();
         document.getElementById("mDate").valueAsDate = new Date();
-        saveAndRender();
     }
 
     // --- Ledger Action Functions ---
     function deleteItem(id) {
+        if (!confirm("Remove this item?")) return;
         ledger = ledger.filter(item => item.id !== id);
         saveAndRender();
     }
 
+    // Inline edit logic
     function startEdit(id) {
         editingId = id;
         render();
@@ -660,6 +794,11 @@
     function saveEdit(id) {
         const index = ledger.findIndex(item => item.id === id);
         if (index !== -1) {
+            const editPaidBy = document.getElementById(`edit-paidBy-${id}`).value;
+            if(!editPaidBy) {
+                alert("Paid By is mandatory.");
+                return;
+            }
             ledger[index].date = document.getElementById(`edit-date-${id}`).value;
             ledger[index].merchant = document.getElementById(`edit-merchant-${id}`).value;
             ledger[index].expense = document.getElementById(`edit-expense-${id}`).value;
@@ -667,6 +806,7 @@
             ledger[index].cat1 = document.getElementById(`edit-cat1-${id}`).value;
             ledger[index].cat2 = document.getElementById(`edit-cat2-${id}`).value;
             ledger[index].cat3 = document.getElementById(`edit-cat3-${id}`).value;
+            ledger[index].paidBy = editPaidBy;
         }
         editingId = null;
         saveAndRender();
@@ -690,18 +830,19 @@
             if (item.cat1 === "Essential") essentialExp += item.amount;
 
             if (editingId === item.id) {
-                // Render Editable Row
+                // Render Inline Editable Row
                 const row = `
                     <tr>
                         <td><input type="date" id="edit-date-${item.id}" class="review-input" value="${item.date}"></td>
                         <td><input type="text" id="edit-merchant-${item.id}" class="review-input" value="${item.merchant}"></td>
                         <td><input type="text" id="edit-expense-${item.id}" class="review-input" value="${item.expense}"></td>
                         <td><input type="number" step="0.01" id="edit-amount-${item.id}" class="review-input" value="${item.amount}"></td>
+                        <td><select id="edit-paidBy-${item.id}" class="review-input" style="border: 2px solid var(--border);">${getPaidByOptions(item.paidBy)}</select></td>
                         <td><select id="edit-cat1-${item.id}" class="review-input">${getCatOptions(1, item.cat1)}</select></td>
                         <td><select id="edit-cat2-${item.id}" class="review-input">${getCatOptions(2, item.cat2)}</select></td>
                         <td><select id="edit-cat3-${item.id}" class="review-input">${getCatOptions(3, item.cat3)}</select></td>
                         <td>
-                            <div style="display: flex; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.25rem;">
                                 <button class="action-btn" onclick="saveEdit(${item.id})">Save</button>
                                 <button class="action-btn secondary" onclick="cancelEdit()">Cancel</button>
                             </div>
@@ -710,8 +851,7 @@
                 `;
                 tbody.insertAdjacentHTML('beforeend', row);
             } else {
-                // Render Normal Row
-                // Determine badge color based on category status
+                // Render Normal Table Row
                 let badgeClass = "badge-uncategorized";
                 if (item.cat1 === "Essential") badgeClass = "badge-essential";
                 else if (item.cat1 === "non-essential") badgeClass = "badge-non-essential";
@@ -720,13 +860,14 @@
                     <tr>
                         <td>${item.date}</td>
                         <td><strong>${item.merchant}</strong></td>
-                        <td>${item.expense}</td>
+                        <td>${item.expense || "General Items"}</td>
                         <td>€${item.amount.toFixed(2)}</td>
+                        <td><span class="badge" style="border-style: solid; font-weight:700;">${item.paidBy || "Unassigned"}</span></td>
                         <td><span class="badge ${badgeClass}">${item.cat1}</span></td>
                         <td>${item.cat2}</td>
                         <td>${item.cat3}</td>
                         <td>
-                            <div style="display: flex; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.25rem;">
                                 <button class="action-btn secondary" onclick="startEdit(${item.id})">Edit</button>
                                 <button class="action-btn danger" onclick="deleteItem(${item.id})">Del</button>
                             </div>
@@ -737,7 +878,7 @@
             }
         });
 
-        // Update KPIs (These update dynamically behind the scenes even if the ledger is hidden)
+        // Update KPIs
         const savings = TOTAL_INCOME - totalExp;
         const ratio = totalExp > 0 ? ((essentialExp / totalExp) * 100).toFixed(0) : 0;
 
@@ -753,15 +894,15 @@
             alert("No data to export!");
             return;
         }
-        let headers = ["Date,Merchant,Expense,Amount,Category 1,Category 2,Category 3\n"];
+        let headers = ["Date,Merchant,Expense,Amount,Paid By,Category 1,Category 2,Category 3\n"];
         let rows = ledger.map(item => 
-            `"${item.date}","${item.merchant}","${item.expense}",${item.amount},"${item.cat1}","${item.cat2}","${item.cat3}"`
+            `"${item.date}","${item.merchant}","${item.expense}",${item.amount},"${item.paidBy}","${item.cat1}","${item.cat2}","${item.cat3}"`
         );
         let csvContent = "data:text/csv;charset=utf-8," + headers.concat(rows).join("\n");
         let encodedUri = encodeURI(csvContent);
         let link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Anwar Family_Ledger_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute("download", `Anwar_Family_Ledger_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
